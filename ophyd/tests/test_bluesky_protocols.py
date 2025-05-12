@@ -1,4 +1,6 @@
 from mypy import api
+import subprocess
+import tempfile
 
 imports = ""
 imports += "import ophyd;"
@@ -6,7 +8,7 @@ imports += "from ophyd import flyers, sim;"
 imports += "hw = sim.hw();"
 
 
-def run(cmd):
+def run_mypy(cmd):
     normal_report, error_report, exit_status = api.run(
         ["--command", cmd, "--follow-imports=skip"]
     )
@@ -14,6 +16,24 @@ def run(cmd):
     print("  ", normal_report)
     print("  ", error_report)
     assert exit_status == 0
+
+
+def run_pyright(cmd):
+    with tempfile.NamedTemporaryFile(suffix=".py") as fp:
+        print(f"Writing program to temporary file: '{fp.name}'...")
+        fp.write(cmd.encode("utf-8"))
+        fp.flush()
+        command = ["pyright", fp.name]
+        print(f"Running: '{command}'...")
+        result = subprocess.run(command, capture_output=True, text=True)
+        print("  ", result.stdout)
+        print("  ", result.stderr)
+        assert result.returncode == 0
+
+
+def run(cmd):
+    run_mypy(cmd)
+    run_pyright(cmd)
 
 
 def test_checkable():
@@ -38,6 +58,7 @@ def test_movable():
     run(cmd + "foo: Movable = hw.motor1")
     run(cmd + "foo: Movable = ophyd.Device(name='test')")
     run(cmd + "foo: Movable = hw.flyer1")
+    run(cmd + "foo: Movable = ophyd.Component(ophyd.SignalRO, 'prefix')")
 
 
 def test_pausable():
