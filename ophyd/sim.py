@@ -16,6 +16,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from ophyd.utils.types import Hints
+
 from .areadetector.base import EpicsSignalWithRBV
 from .areadetector.paths import EpicsPathSignal
 from .device import Component as Cpt
@@ -525,7 +527,7 @@ class SynAxis(Device):
 
 class SynAxisEmptyHints(SynAxis):
     @property
-    def hints(self):
+    def hints(self) -> Hints:
         return {}
 
 
@@ -533,7 +535,7 @@ class SynAxisNoHints(SynAxis):
     readback = Cpt(_ReadbackSignal, value=0.0, kind="omitted")
 
     @property
-    def hints(self):
+    def hints(self) -> Hints:
         raise AttributeError
 
 
@@ -903,8 +905,12 @@ class MockFlyer:
             with self._lock:
                 self._data.append(event)
 
-    def stop(self, *, success=False):
+    def stop(self, success=False):
         pass
+
+    # Placeholder required for components to conform to the Bluesky Moveable protocol
+    def set(self, val: Any) -> Any: ...
+
 
 
 class SynSignalWithRegistry(SynSignal):

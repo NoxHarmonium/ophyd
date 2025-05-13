@@ -29,6 +29,8 @@ from typing import (
     Union,
 )
 
+from ophyd.utils.types import Hints
+
 from .ophydobj import Kind, OphydObject
 from .signal import Signal
 from .status import DeviceStatus, StatusBase
@@ -1494,7 +1496,7 @@ class Device(BlueskyInterface, OphydObject):
         return res
 
     @property
-    def hints(self):
+    def hints(self) -> Hints:
         fields = []
         for _, component in self._get_components_of_kind(Kind.normal):
             c_hints = component.hints
@@ -1543,7 +1545,7 @@ class Device(BlueskyInterface, OphydObject):
         acq_signal.put(trigger_value, wait=False, callback=done_acquisition)
         return status
 
-    def stop(self, *, success=False):
+    def stop(self, success=False):
         """Stop the Device and all (instantiated) subdevices"""
         exc_list = []
 
