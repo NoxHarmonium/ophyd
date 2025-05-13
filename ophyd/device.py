@@ -367,6 +367,8 @@ class Component(typing.Generic[K]):
         "Value subscription decorator"
         return self.subscriptions("value")(func)
 
+    # Placeholder required for components to conform to the Bluesky Moveable protocol
+    # The actual implementation will be provided by the cls passed into the Component
     def set(self, val: Any) -> Any: ...
 
 
@@ -1672,6 +1674,8 @@ class Device(BlueskyInterface, OphydObject):
         yield ("read_attrs", self.read_attrs)
         yield ("configuration_attrs", self.configuration_attrs)
 
+    # Placeholder required for devices to conform to the Bluesky Moveable protocol
+    # The actual implementation will be provided by sub classes
     def set(self, val: Any) -> Any: ...
 
     class OphydAttrList(MutableSequence):
