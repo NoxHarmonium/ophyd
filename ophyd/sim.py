@@ -5,6 +5,7 @@ import os
 import random
 import threading
 import time as ttime
+from typing import Any
 import uuid
 import warnings
 import weakref
@@ -30,7 +31,7 @@ from .pseudopos import (
     real_position_argument,
 )
 from .signal import EpicsSignal, EpicsSignalRO, Signal
-from .status import DeviceStatus, MoveStatus, StatusBase
+from .status import DeviceStatus, MoveStatus, Status, StatusBase
 from .utils import LimitError, ReadOnlyError
 
 # two convenience functions 'vendored' from bluesky.utils
@@ -761,7 +762,7 @@ class TrivialFlyer:
     name = "trivial_flyer"
     parent = None
 
-    def kickoff(self):
+    def kickoff(self) -> Any:
         return NullStatus()
 
     def describe_collect(self):
@@ -773,7 +774,7 @@ class TrivialFlyer:
     def describe_configuration(self):
         return OrderedDict()
 
-    def complete(self):
+    def complete(self) -> Any:
         return NullStatus()
 
     def collect(self):

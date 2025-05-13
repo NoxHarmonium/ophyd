@@ -86,10 +86,6 @@ DEVICE_RESERVED_ATTRS = {
 DEFAULT_CONNECTION_TIMEOUT = object()
 
 
-class OrderedDictType(Dict[A, B]):
-    ...
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -371,6 +367,8 @@ class Component(typing.Generic[K]):
         "Value subscription decorator"
         return self.subscriptions("value")(func)
 
+    def set(self, val: Any) -> Any: ...
+
 
 class FormattedComponent(Component[K]):
     """A Component which takes a dynamic format string
@@ -536,6 +534,13 @@ class BlueskyInterface:
         self._original_vals = OrderedDict()
         super().__init__(*args, **kwargs)
 
+    @property
+    def name(self) -> str:
+        """Used to populate object_keys in the Event DataKey
+
+        https://blueskyproject.io/event-model/event-descriptors.html#object-keys"""
+        ...
+
     def trigger(self) -> StatusBase:
         """Trigger the device and return status object.
 
@@ -562,7 +567,7 @@ class BlueskyInterface:
         """
         pass
 
-    def read(self) -> OrderedDictType[str, Dict[str, Any]]:
+    def read(self) -> OrderedDict[str, Any]:
         """Read data from the device.
 
         This method is expected to be as instantaneous as possible,
@@ -589,7 +594,7 @@ class BlueskyInterface:
         """
         return OrderedDict()
 
-    def describe(self) -> OrderedDictType[str, Dict[str, Any]]:
+    def describe(self) -> OrderedDict[str, Any]:
         """Provide schema and meta-data for :meth:`~BlueskyInterface.read`.
 
         This keys in the `OrderedDict` this method returns must match the
@@ -1456,7 +1461,7 @@ class Device(BlueskyInterface, OphydObject):
             res.update(component.read())
         return res
 
-    def read_configuration(self) -> OrderedDictType[str, Dict[str, Any]]:
+    def read_configuration(self) -> OrderedDict[str, Any]:
         """Dictionary mapping names to value dicts with keys: value, timestamp
 
         To control which fields are included, change the Component kinds on the
@@ -1475,7 +1480,7 @@ class Device(BlueskyInterface, OphydObject):
             res.update(component.describe())
         return res
 
-    def describe_configuration(self) -> OrderedDictType[str, Dict[str, Any]]:
+    def describe_configuration(self) -> OrderedDict[str, Any]:
         """Provide schema & meta-data for :meth:`~BlueskyInterface.read_configuration`
 
         This keys in the `OrderedDict` this method returns must match the
@@ -1666,6 +1671,8 @@ class Device(BlueskyInterface, OphydObject):
 
         yield ("read_attrs", self.read_attrs)
         yield ("configuration_attrs", self.configuration_attrs)
+
+    def set(self, val: Any) -> Any: ...
 
     class OphydAttrList(MutableSequence):
         """list proxy to migrate away from Device.read_attrs and Device.config_attrs"""
