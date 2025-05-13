@@ -1,16 +1,21 @@
 from mypy import api
 import subprocess
 import tempfile
+from pathlib import Path
 
 imports = ""
 imports += "import ophyd;"
 imports += "from ophyd import flyers, sim;"
 imports += "hw = sim.hw();"
 
+repo_root = (Path(".")).resolve()
 
-def run_mypy(cmd):
+
+def run_mypy_command(cmd):
+    print(f"REPO ROOT: {repo_root}")
+    print("MYPY")
     normal_report, error_report, exit_status = api.run(
-        ["--command", cmd, "--follow-imports=skip"]
+        ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
     )
     print(cmd.split(";")[-1])
     print("  ", normal_report)
@@ -18,8 +23,9 @@ def run_mypy(cmd):
     assert exit_status == 0
 
 
-def run_pyright(cmd):
+def run_pyright_command(cmd):
     with tempfile.NamedTemporaryFile(suffix=".py") as fp:
+        print("PYRIGHT")
         print(f"Writing program to temporary file: '{fp.name}'...")
         fp.write(cmd.encode("utf-8"))
         fp.flush()
@@ -33,9 +39,9 @@ def run_pyright(cmd):
 
 
 def run(cmd, run_pyright=True):
-    run_mypy(cmd)
+    run_mypy_command(cmd)
     if run_pyright:
-        run_pyright(cmd)
+        run_pyright_command(cmd)
 
 
 def test_checkable():
@@ -49,12 +55,11 @@ def test_flyable():
     run(cmd + "foo: Flyable = hw.flyer1")
     run(cmd + "foo: Flyable = sim.TrivialFlyer()")
 
-
-def test_hinted():
-    cmd = imports + "from bluesky.protocols import Hinted;"
-    # TODO: The Hinted protocol doesn't seem to exist anymore
-    # Not sure why mypy isn't picking up on that, but pyright does so skipping for now
-    run(cmd + "foo: Hinted = ophyd.Signal(name='test')", run_pyright=False)
+# TODO: The Hinted protocol doesn't seem to exist anymore
+# Not sure why mypy isn't picking up on that, but pyright does so skipping for now
+# def test_hinted():
+    # cmd = imports + "from bluesky.protocols import Hinted;"
+    # run(cmd + "foo: Hinted = ophyd.Signal(name='test')")
 
 
 def test_movable():

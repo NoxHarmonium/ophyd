@@ -1,5 +1,3 @@
-# type: ignore
-
 from __future__ import annotations
 
 import collections
@@ -535,13 +533,6 @@ class BlueskyInterface:
         self._staged = Staged.no
         self._original_vals = OrderedDict()
         super().__init__(*args, **kwargs)
-
-    @property
-    def name(self) -> str:
-        """Used to populate object_keys in the Event DataKey
-
-        https://blueskyproject.io/event-model/event-descriptors.html#object-keys"""
-        ...
 
     def trigger(self) -> StatusBase:
         """Trigger the device and return status object.
@@ -1678,6 +1669,13 @@ class Device(BlueskyInterface, OphydObject):
     # The actual implementation will be provided by sub classes
     def set(self, val: Any) -> Any: ...
 
+    # @property
+    # def name(self) -> str:
+    #     """Used to populate object_keys in the Event DataKey
+
+    #     https://blueskyproject.io/event-model/event-descriptors.html#object-keys"""
+    #     ...
+
     class OphydAttrList(MutableSequence):
         """list proxy to migrate away from Device.read_attrs and Device.config_attrs"""
 
@@ -1742,6 +1740,7 @@ class Device(BlueskyInterface, OphydObject):
 
         def __radd__(self, other):
             return list(self) + list(other)
+
 
 
 # Device can be used on its own in trivial cases; ensure that it is ready
