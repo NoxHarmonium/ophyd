@@ -1,6 +1,6 @@
 import subprocess
 import tempfile
-from typing import List, Literal
+from typing import Callable, List, Literal
 
 import pytest
 from mypy import api
@@ -15,10 +15,10 @@ enabled_type_checkers: List[SupportedTypeCheckers] = ["pyright", "mypy"]
 
 
 @pytest.fixture(params=enabled_type_checkers, scope="session")
-def run(request):
+def run(request) -> Callable[[str], None]:
     def run_mypy_command(cmd):
         normal_report, error_report, exit_status = api.run(
-            ["--command", cmd, "--follow-imports=skip", "--disallow-any-unimported"]
+            ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
         )
         print(cmd.split(";")[-1])
         print("  ", normal_report)
@@ -40,13 +40,14 @@ def run(request):
 
     tool_name: SupportedTypeCheckers = request.param
     if tool_name == "mypy":
-        return lambda cmd: run_mypy_command(cmd)
+        return run_mypy_command
     elif tool_name == "pyright":
-        return lambda cmd: run_pyright_command(cmd)
+        return run_pyright_command
     else:
         raise Exception(f"Unsupported type checking tool: '{tool_name}'")
 
 
+@pytest.mark.timeout(60)
 def test_configurable(run):
     cmd = imports + "from bluesky.protocols import Configurable;"
     run(cmd + "foo: Configurable = hw.motor1")
@@ -76,6 +77,7 @@ def test_flyable(run):
     run(cmd + "foo: Flyable = sim.TrivialFlyer()")
 
 
+@pytest.mark.timeout(60)
 def test_movable(run):
     cmd = imports + "from bluesky.protocols import Movable;"
     run(cmd + "foo: Movable = hw.motor1")
