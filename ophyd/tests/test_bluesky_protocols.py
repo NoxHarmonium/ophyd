@@ -75,7 +75,8 @@ def test_stoppable(run_typecheck):
     run_typecheck(cmd + "foo: Stoppable = hw.flyer1")
 
 
-# TODO: Ophyd signature is incompatible with bluesky protocol (extra parameters, returns int instead of None, different parameter names)
+# TODO: Ophyd signature is incompatible with bluesky protocol
+# (extra parameters, returns int instead of None, different parameter names)
 # Pyright is stricter and picks this up. Disabled for now
 @pytest.mark.skip()
 def test_subscribable(run_typecheck):
