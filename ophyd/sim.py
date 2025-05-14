@@ -910,7 +910,7 @@ class MockFlyer:
 
     # Placeholder required for components to conform to the Bluesky Moveable protocol
     def set(self, *args, **kwargs) -> Any:
-        ...
+        return super().set(*args, **kwargs)
 
 
 class SynSignalWithRegistry(SynSignal):
