@@ -1,4 +1,6 @@
 import logging
+import subprocess
+import tempfile
 import uuid
 from types import SimpleNamespace
 
@@ -165,3 +167,40 @@ def cleanup(request):
 
     request.addfinalizer(clean)
     return Cleaner()
+
+
+@pytest.fixture(params=["pyright", "mypy"], scope="session")
+def run_typecheck(request):
+    def run_mypy_command(cmd):
+        from mypy import api
+        normal_report, error_report, exit_status = api.run(
+            ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
+        )
+        print(cmd.split(";")[-1])
+        print("  ", normal_report)
+        print("  ", error_report)
+        assert exit_status == 0
+
+
+    def run_pyright_command(cmd):
+        with tempfile.NamedTemporaryFile(suffix=".py") as fp:
+            print(f"Writing program to temporary file: '{fp.name}'...")
+            fp.write(cmd.encode("utf-8"))
+            fp.flush()
+            command = ["pyright", fp.name]
+            print(f"Running: '{command}'...")
+            result = subprocess.run(command, capture_output=True, text=True)
+            print(cmd.split(";")[-1])
+            print("  ", result.stdout)
+            print("  ", result.stderr)
+            assert result.returncode == 0, result.stdout
+
+
+    tool_name = request.param
+    match tool_name:
+        case "mypy":
+            return lambda cmd: run_mypy_command(cmd)
+        case "pyright":
+            return lambda cmd: run_pyright_command(cmd)
+        case _:
+            raise Exception(f"Unsupported type checking tool: '{tool_name}'")

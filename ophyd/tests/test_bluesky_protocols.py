@@ -1,7 +1,3 @@
-from mypy import api
-import subprocess
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -10,120 +6,79 @@ imports += "import ophyd;"
 imports += "from ophyd import flyers, sim;"
 imports += "hw = sim.hw();"
 
-repo_root = (Path(".")).resolve()
-
-def run_mypy_command(cmd):
-    print(f"REPO ROOT: {repo_root}")
-    print("MYPY")
-    normal_report, error_report, exit_status = api.run(
-        ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
-    )
-    print(cmd.split(";")[-1])
-    print("  ", normal_report)
-    print("  ", error_report)
-    assert exit_status == 0
-
-
-def run_pyright_command(cmd):
-    with tempfile.NamedTemporaryFile(suffix=".py") as fp:
-        print("PYRIGHT")
-        print(f"Writing program to temporary file: '{fp.name}'...")
-        fp.write(cmd.encode("utf-8"))
-        fp.flush()
-        command = ["pyright", fp.name]
-        print(f"Running: '{command}'...")
-        result = subprocess.run(command, capture_output=True, text=True)
-        print(cmd.split(";")[-1])
-        print("  ", result.stdout)
-        print("  ", result.stderr)
-        assert result.returncode == 0, result.stdout
-
-
-@pytest.fixture(params=["pyright", "mypy"], scope="session")
-def run(request):
-    tool_name = request.param
-    match tool_name:
-        case "mypy":
-            return lambda cmd: run_mypy_command(cmd)
-        case "pyright":
-            return lambda cmd: run_pyright_command(cmd)
-        case _:
-            raise Exception(f"Unsupported type checking tool: '{tool_name}'")
-
-def test_configurable(run):
+def test_configurable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Configurable;"
-    run(cmd + "foo: Configurable = hw.motor1")
-    run(cmd + "foo: Configurable = ophyd.Device(name='test')")
-    run(cmd + "foo: Configurable = hw.signal")
+    run_typecheck(cmd + "foo: Configurable = hw.motor1")
+    run_typecheck(cmd + "foo: Configurable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Configurable = hw.signal")
 
-def test_triggerable(run):
+def test_triggerable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Triggerable;"
-    run(cmd + "foo: Triggerable = hw.det")
+    run_typecheck(cmd + "foo: Triggerable = hw.det")
 
-def test_checkable(run):
+def test_checkable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Checkable;"
-    run(cmd + "foo: Checkable = hw.motor1")
-    run(cmd + "foo: Checkable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Checkable = hw.motor1")
+    run_typecheck(cmd + "foo: Checkable = ophyd.Device(name='test')")
 
-def test_hashints(run):
+def test_hashints(run_typecheck):
     cmd = imports + "from bluesky.protocols import HasHints;"
-    run(cmd + "foo: HasHints = ophyd.Signal(name='test')")
+    run_typecheck(cmd + "foo: HasHints = ophyd.Signal(name='test')")
 
-def test_flyable(run):
+def test_flyable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Flyable;"
-    run(cmd + "foo: Flyable = hw.flyer1")
-    run(cmd + "foo: Flyable = sim.TrivialFlyer()")
+    run_typecheck(cmd + "foo: Flyable = hw.flyer1")
+    run_typecheck(cmd + "foo: Flyable = sim.TrivialFlyer()")
 
-
-def test_movable(run):
+def test_movable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Movable;"
-    run(cmd + "foo: Movable = hw.motor1")
-    run(cmd + "foo: Movable = hw.flyer1")
-    run(cmd + "foo: Movable = ophyd.Component(ophyd.Signal, 'prefix')")
-    run(cmd + "foo: Movable = ophyd.Device(name='test')")
-    run(cmd + "foo: Movable = ophyd.Component(ophyd.Signal, 'prefix')")
+    run_typecheck(cmd + "foo: Movable = hw.motor1")
+    run_typecheck(cmd + "foo: Movable = hw.flyer1")
+    run_typecheck(cmd + "foo: Movable = ophyd.Component(ophyd.Signal, 'prefix')")
+    run_typecheck(cmd + "foo: Movable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Movable = ophyd.Component(ophyd.Signal, 'prefix')")
 
 
-def test_pausable(run):
+def test_pausable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Pausable;"
-    run(cmd + "foo: Pausable = hw.motor1")
-    run(cmd + "foo: Pausable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Pausable = hw.motor1")
+    run_typecheck(cmd + "foo: Pausable = ophyd.Device(name='test')")
 
 
-def test_readable(run):
+def test_readable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Readable;"
-    run(cmd + "foo: Readable = hw.motor1")
-    run(cmd + "foo: Readable = ophyd.Device(name='test')")
-    run(cmd + "foo: Readable = hw.signal")
+    run_typecheck(cmd + "foo: Readable = hw.motor1")
+    run_typecheck(cmd + "foo: Readable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Readable = hw.signal")
 
 
-def test_stageable(run):
+def test_stageable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Stageable;"
-    run(cmd + "foo: Stageable = hw.motor1")
-    run(cmd + "foo: Stageable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Stageable = hw.motor1")
+    run_typecheck(cmd + "foo: Stageable = ophyd.Device(name='test')")
 
 
-def test_status(run):
+def test_status(run_typecheck):
     cmd = imports + "from bluesky.protocols import Status;"
-    run(cmd + "foo: Status = ophyd.status.Status()")
-    run(cmd + "foo: Status = ophyd.status.StatusBase()")
+    run_typecheck(cmd + "foo: Status = ophyd.status.Status()")
+    run_typecheck(cmd + "foo: Status = ophyd.status.StatusBase()")
 
 
-def test_stoppable(run):
+def test_stoppable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Stoppable;"
-    run(cmd + "foo: Stoppable = hw.motor1")
-    run(cmd + "foo: Stoppable = hw.flyer1")
+    run_typecheck(cmd + "foo: Stoppable = hw.motor1")
+    run_typecheck(cmd + "foo: Stoppable = hw.flyer1")
 
 # TODO: Ophyd signature is incompatible with bluesky protocol (extra parameters, returns int instead of None, different parameter names)
 # Pyright is stricter and picks this up. Disabled for now
 @pytest.mark.skip()
-def test_subscribable(run):
+def test_subscribable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Subscribable;"
-    run(cmd + "foo: Subscribable = hw.signal")
-    run(cmd + "foo: Subscribable = ophyd.Signal(name='test')")
-    run(cmd + "foo: Subscribable = ophyd.Device(name='test')")
-    run(cmd + "foo: Subscribable = hw.motor1")
-    run(cmd + "foo: Subscribable = hw.flyer1")
+    run_typecheck(cmd + "foo: Subscribable = hw.signal")
+    run_typecheck(cmd + "foo: Subscribable = ophyd.Signal(name='test')")
+    run_typecheck(cmd + "foo: Subscribable = ophyd.Device(name='test')")
+    run_typecheck(cmd + "foo: Subscribable = hw.motor1")
+    run_typecheck(cmd + "foo: Subscribable = hw.flyer1")
 
 
 if __name__ == "__main__":
