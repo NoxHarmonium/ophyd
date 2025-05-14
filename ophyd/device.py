@@ -1671,13 +1671,6 @@ class Device(BlueskyInterface, OphydObject):
     # The actual implementation will be provided by sub classes
     def set(self, val: Any) -> Any: ...
 
-    # @property
-    # def name(self) -> str:
-    #     """Used to populate object_keys in the Event DataKey
-
-    #     https://blueskyproject.io/event-model/event-descriptors.html#object-keys"""
-    #     ...
-
     class OphydAttrList(MutableSequence):
         """list proxy to migrate away from Device.read_attrs and Device.config_attrs"""
 
