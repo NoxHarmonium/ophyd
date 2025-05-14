@@ -909,8 +909,8 @@ class MockFlyer:
         pass
 
     # Placeholder required for components to conform to the Bluesky Moveable protocol
-    def set(self, val: Any) -> Any: ...
-
+    def set(self, val: Any) -> Any:
+        ...
 
 
 class SynSignalWithRegistry(SynSignal):

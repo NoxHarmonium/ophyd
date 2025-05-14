@@ -173,6 +173,7 @@ def cleanup(request):
 def run_typecheck(request):
     def run_mypy_command(cmd):
         from mypy import api
+
         normal_report, error_report, exit_status = api.run(
             ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
         )
@@ -180,7 +181,6 @@ def run_typecheck(request):
         print("  ", normal_report)
         print("  ", error_report)
         assert exit_status == 0
-
 
     def run_pyright_command(cmd):
         with tempfile.NamedTemporaryFile(suffix=".py") as fp:
@@ -194,7 +194,6 @@ def run_typecheck(request):
             print("  ", result.stdout)
             print("  ", result.stderr)
             assert result.returncode == 0, result.stdout
-
 
     tool_name = request.param
     match tool_name:

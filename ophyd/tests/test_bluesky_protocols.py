@@ -1,4 +1,3 @@
-
 import pytest
 
 imports = ""
@@ -6,29 +5,35 @@ imports += "import ophyd;"
 imports += "from ophyd import flyers, sim;"
 imports += "hw = sim.hw();"
 
+
 def test_configurable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Configurable;"
     run_typecheck(cmd + "foo: Configurable = hw.motor1")
     run_typecheck(cmd + "foo: Configurable = ophyd.Device(name='test')")
     run_typecheck(cmd + "foo: Configurable = hw.signal")
 
+
 def test_triggerable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Triggerable;"
     run_typecheck(cmd + "foo: Triggerable = hw.det")
+
 
 def test_checkable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Checkable;"
     run_typecheck(cmd + "foo: Checkable = hw.motor1")
     run_typecheck(cmd + "foo: Checkable = ophyd.Device(name='test')")
 
+
 def test_hashints(run_typecheck):
     cmd = imports + "from bluesky.protocols import HasHints;"
     run_typecheck(cmd + "foo: HasHints = ophyd.Signal(name='test')")
+
 
 def test_flyable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Flyable;"
     run_typecheck(cmd + "foo: Flyable = hw.flyer1")
     run_typecheck(cmd + "foo: Flyable = sim.TrivialFlyer()")
+
 
 def test_movable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Movable;"
@@ -68,6 +73,7 @@ def test_stoppable(run_typecheck):
     cmd = imports + "from bluesky.protocols import Stoppable;"
     run_typecheck(cmd + "foo: Stoppable = hw.motor1")
     run_typecheck(cmd + "foo: Stoppable = hw.flyer1")
+
 
 # TODO: Ophyd signature is incompatible with bluesky protocol (extra parameters, returns int instead of None, different parameter names)
 # Pyright is stricter and picks this up. Disabled for now
