@@ -5,6 +5,7 @@ import os
 import random
 import threading
 import time as ttime
+from types import SimpleNamespace
 from typing import Any
 import uuid
 import warnings
@@ -12,7 +13,6 @@ import weakref
 from collections import OrderedDict, deque
 from functools import partial
 from tempfile import mkdtemp
-from dataclasses import dataclass
 
 import numpy as np
 
