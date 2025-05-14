@@ -3,6 +3,7 @@ import tempfile
 from typing import List, Literal
 
 import pytest
+from mypy import api
 
 imports = ""
 imports += "import ophyd;"
@@ -16,8 +17,6 @@ enabled_type_checkers: List[SupportedTypeCheckers] = ["pyright", "mypy"]
 @pytest.fixture(params=enabled_type_checkers, scope="session")
 def run(request):
     def run_mypy_command(cmd):
-        from mypy import api
-
         normal_report, error_report, exit_status = api.run(
             ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
         )
