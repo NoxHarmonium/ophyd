@@ -18,7 +18,7 @@ enabled_type_checkers: List[SupportedTypeCheckers] = ["pyright", "mypy"]
 def run(request):
     def run_mypy_command(cmd):
         normal_report, error_report, exit_status = api.run(
-            ["--command", cmd, "--follow-imports=silent", "--disallow-any-unimported"]
+            ["--command", cmd, "--follow-imports=skip", "--disallow-any-unimported"]
         )
         print(cmd.split(";")[-1])
         print("  ", normal_report)
