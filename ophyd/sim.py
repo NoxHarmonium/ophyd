@@ -5,14 +5,14 @@ import os
 import random
 import threading
 import time as ttime
-from types import SimpleNamespace
-from typing import Any
 import uuid
 import warnings
 import weakref
 from collections import OrderedDict, deque
 from functools import partial
 from tempfile import mkdtemp
+from types import SimpleNamespace
+from typing import Any
 
 import numpy as np
 

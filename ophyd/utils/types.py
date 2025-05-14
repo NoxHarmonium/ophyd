@@ -1,4 +1,4 @@
-from typing import Literal, TypedDict, List, Tuple
+from typing import List, Literal, Tuple, TypedDict
 
 
 class Hints(TypedDict, total=False):

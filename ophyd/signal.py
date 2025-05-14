@@ -2,9 +2,9 @@
 import os
 import threading
 import time
-from typing import Any, OrderedDict
 import warnings
 import weakref
+from typing import Any, OrderedDict
 
 import numpy as np
 
