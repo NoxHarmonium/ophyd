@@ -369,7 +369,7 @@ class Component(typing.Generic[K]):
 
     # Placeholder required for components to conform to the Bluesky Moveable protocol
     # The actual implementation will be provided by the cls passed into the Component
-    def set(self, val: Any) -> Any:
+    def set(self, *args, **kwargs) -> Any:
         ...
 
 
@@ -1670,7 +1670,7 @@ class Device(BlueskyInterface, OphydObject):
 
     # Placeholder required for devices to conform to the Bluesky Moveable protocol
     # The actual implementation will be provided by sub classes
-    def set(self, val: Any) -> Any:
+    def set(self, *args, **kwargs) -> Any:
         ...
 
     class OphydAttrList(MutableSequence):
